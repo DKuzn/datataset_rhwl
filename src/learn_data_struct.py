@@ -10,20 +10,24 @@ class LearnData:
 
 
 class DataSet:
-    def __init__(self, batch_size):
+    def __init__(self, batch_size=10):
         self.data_set = []
-        self.batch_size = batch_size
+        if batch_size > 0 and batch_size <= 63:
+            self.batch_size = int(batch_size)
+        else:
+            raise ValueError('Batch size is too big.')
+        self.letter_batch = self.__get_batch_letter()
 
     def __str__(self):
-        out = "["
+        out = "[\n"
         for i in self.data_set:
-            out += ",\n" + 'letter:' + str(i.letter) + '\n' + str(i.data)
+            out += "\t" + 'letter:' + str(i.letter) + '\n' + '\t' + 'img:\n'  + str(i.data) + '\n'
         return out + "]"
 
     def __getitem__(self, item):
         return self.data_set[item]
 
-    def add_data(self, path):
+    def __add_data(self, path):
         data = Image.open(path)
         letter = os.path.splitext(os.path.basename(path))[0]
         np_data = np.array(data)
@@ -34,18 +38,24 @@ class DataSet:
         return self.data_set
 
     def __get_batch_letter(self):
-        return np.random.randint(0, 62+1)
+        lb = []
+        i = 0
+        while i < self.batch_size:
+            num = np.random.randint(0, 62+1)
+            if num not in lb:
+                lb.append(num)
+                i += 1
+        return lb
 
     def batch(self):
         path = '../cut_img'
         sub_folder = np.random.randint(1,8+1)
         path = os.path.join(path, str(sub_folder))
         list_image = os.listdir(path)
-        for i in range(self.batch_size):
-            self.add_data(os.path.join(path, list_image[self.__get_batch_letter()]))
+        for i in self.letter_batch:
+            self.__add_data(os.path.join(path, list_image[i]))
         return self.data_set
 
-
-a = DataSet(10)
+a = DataSet(2)
 a.batch()
 print(a)
