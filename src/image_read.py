@@ -1,7 +1,7 @@
-
 import random
 import os
 from PIL import Image, ImageDraw #Подключим необходимые библиотеки.
+
 
 def cut_image():
     for k in range(1, 9):
@@ -19,7 +19,8 @@ def cut_image():
             for j in range(size_old_image[1]):
                 if 178 < i < size_new_img[0] + 178 and 88 < j < size_new_img[1] + 88:
                     test.putpixel((i-178, j-88), image.getpixel((i,j)))
-        test.save(path + str(k)+ 'new.jpg')
+        test.save(path + str(k) + 'new.jpg')
+
 
 def rename():
     alphabet = 'АаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщъыьЭэЮюЯя'
@@ -28,7 +29,8 @@ def rename():
         jpg = os.listdir(dir)
         for i in jpg:
             index = int(os.path.splitext(i)[0])
-            os.rename(os.path.join(dir, i), os.path.join(dir, alphabet[index] +  '.jpg'))
+            os.rename(os.path.join(dir, i), os.path.join(dir, alphabet[index] + '.jpg'))
     return jpg
+
 
 print(rename())
