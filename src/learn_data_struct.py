@@ -60,6 +60,3 @@ class DataSet:
         for i in self.letter_batch:
             self.__add_data(os.path.join(path, list_image[i]))
         return self.data_set
-
-a = DataSet(2)
-print(a.batch())
