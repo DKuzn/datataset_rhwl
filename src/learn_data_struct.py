@@ -62,5 +62,4 @@ class DataSet:
         return self.data_set
 
 a = DataSet(2)
-a.batch()
-print(a)
+print(a.batch())

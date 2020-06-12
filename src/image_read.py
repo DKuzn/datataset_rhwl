@@ -1,6 +1,5 @@
-import random
 import os
-from PIL import Image, ImageDraw #Подключим необходимые библиотеки.
+from PIL import Image
 
 
 def cut_image():
