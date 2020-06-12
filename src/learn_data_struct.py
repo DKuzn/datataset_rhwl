@@ -7,6 +7,7 @@ import os
 class LearnData:
     letter: str = None
     data: np.ndarray = None
+    folder: str = None
 
 
 class DataSet:
@@ -15,10 +16,10 @@ class DataSet:
         :param batch_size: размер батча
         '''
         self.data_set = []
-        if batch_size > 0 and batch_size <= 63:
-            self.batch_size = int(batch_size)
-        else:
-            raise ValueError('Batch size is too big.')
+        #if batch_size > 0 and batch_size <= 63:
+        self.batch_size = int(batch_size)
+        #else:
+            #raise ValueError('Batch size is too big.')
         self.letter_batch = self.__get_batch_letter()
 
 
@@ -38,8 +39,9 @@ class DataSet:
         '''
         data = Image.open(path)
         letter = os.path.splitext(os.path.basename(path))[0]
+        folder = str(path)
         np_data = np.array(data)
-        learn_data = LearnData(letter, np_data)
+        learn_data = LearnData(letter, np_data, folder)
         self.data_set.append(learn_data)
 
     def __get_batch_letter(self):
@@ -53,10 +55,9 @@ class DataSet:
         return lb
 
     def batch(self):
-        path = '../cut_img'
-        sub_folder = np.random.randint(1,8+1)
-        path = os.path.join(path, str(sub_folder))
-        list_image = os.listdir(path)
         for i in self.letter_batch:
+            path = '../cut_img'
+            path = os.path.join(path, str(np.random.randint(1, 8 + 1)))
+            list_image = os.listdir(path)
             self.__add_data(os.path.join(path, list_image[i]))
         return self.data_set
