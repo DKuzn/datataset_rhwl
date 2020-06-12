@@ -61,8 +61,3 @@ class DataSet:
             list_image = os.listdir(path)
             self.__add_data(os.path.join(path, list_image[i]))
         return self.data_set
-
-a = DataSet(100)
-batch = a.batch()
-for i in batch:
-    print(i.folder)
