@@ -19,10 +19,8 @@ class DataSet:
         self.letter_batch = self.__get_batch_letter()
 
     def __str__(self):
-        out = "[\n"
-        for i in self.data_set:
-            out += "\t" + 'letter:' + str(i.letter) + '\n' + '\t' + 'img:\n'  + str(i.data) + '\n'
-        return out + "]"
+        return "[\n\t" + 'letter:' + str(i.letter) + '\n' + '\t' + 'img:\n'  + str(i.data) + '\n' for i in self.data_set
+
 
     def __getitem__(self, item):
         return self.data_set[item]
