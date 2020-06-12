@@ -11,6 +11,9 @@ class LearnData:
 
 class DataSet:
     def __init__(self, batch_size=10):
+        '''
+        :param batch_size: размер батча
+        '''
         self.data_set = []
         if batch_size > 0 and batch_size <= 63:
             self.batch_size = int(batch_size)
@@ -18,22 +21,26 @@ class DataSet:
             raise ValueError('Batch size is too big.')
         self.letter_batch = self.__get_batch_letter()
 
-    def __str__(self):
-        return "[\n\t" + 'letter:' + str(i.letter) + '\n' + '\t' + 'img:\n'  + str(i.data) + '\n' for i in self.data_set
 
 
-    def __getitem__(self, item):
-        return self.data_set[item]
+
+    def __getitem__(self, key):
+        '''
+        :param key: Ключ возвращаемого значения
+        :return: Значение запрошенное по ключу
+        '''
+        return self.data_set[key]
 
     def __add_data(self, path):
+        '''
+        :param path: Путь к изображению
+        :return: None
+        '''
         data = Image.open(path)
         letter = os.path.splitext(os.path.basename(path))[0]
         np_data = np.array(data)
         learn_data = LearnData(letter, np_data)
         self.data_set.append(learn_data)
-
-    def show_data(self):  #метод под вопросом
-        return self.data_set
 
     def __get_batch_letter(self):
         lb = []
