@@ -7,23 +7,16 @@ import os
 class LearnData:
     letter: str = None
     data: np.ndarray = None
-    folder: str = None
 
 
 class DataSet:
-    def __init__(self, batch_size=10):
-        '''
-        :param batch_size: размер батча
-        '''
-        self.data_set = []
-        #if batch_size > 0 and batch_size <= 63:
-        self.batch_size = int(batch_size)
-        #else:
-            #raise ValueError('Batch size is too big.')
-        self.letter_batch = self.__get_batch_letter()
-
-
-
+    def __init__(self):
+        self.__path_to_trained_data = '../cut_img/trained_data'
+        self.__path_to_test_data = '../cut_img/test_data'
+        self.__data_trained = self.__get_data(self.__path_to_trained_data)
+        self.__data_test = self.__get_data(self.__path_to_test_data)
+        self.__all_data = self.__get_all_data()
+        self.__all_classes = self.__get_classes()
 
     def __getitem__(self, key):
         '''
@@ -32,32 +25,48 @@ class DataSet:
         '''
         return self.data_set[key]
 
-    def __add_data(self, path):
-        '''
-        :param path: Путь к изображению
-        :return: None
-        '''
+    def __add_data(self, path, list_append):
         data = Image.open(path)
         letter = os.path.splitext(os.path.basename(path))[0]
-        folder = str(path)
         np_data = np.array(data)
-        learn_data = LearnData(letter, np_data, folder)
-        self.data_set.append(learn_data)
+        learn_data = LearnData(letter, np_data)
+        list_append.append(learn_data)
 
-    def __get_batch_letter(self):
-        lb = []
-        i = 0
-        while i < self.batch_size:
-            num = np.random.randint(0, 62+1)
-            if num not in lb:
-                lb.append(num)
-                i += 1
-        return lb
 
-    def batch(self):
-        for i in self.letter_batch:
-            path = '../cut_img'
-            path = os.path.join(path, str(np.random.randint(1, 8 + 1)))
-            list_image = os.listdir(path)
-            self.__add_data(os.path.join(path, list_image[i]))
-        return self.data_set
+    def __get_data(self, path):
+        list_directory = os.listdir(path)
+        data = []
+        for i in list_directory:
+            path_to_img = os.path.join(path, i)
+            list_images = os.listdir(path_to_img)
+            for j in list_images:
+                self.__add_data(path=os.path.join(path_to_img, j), list_append=data)
+        return data
+
+    def __get_all_data(self):
+        data = []
+        for i in self.__data_trained:
+            data.append(i)
+        for i in self.__data_test:
+            data.append(i)
+        return data
+
+    def __get_classes(self):
+        data = []
+        list_img = os.listdir('../cut_img/test_data/7')
+        for i in list_img:
+            letter = os.path.basename(i)[0]
+            data.append(letter)
+        return data
+
+    def get_trained_data(self):
+        return self.__data_trained
+
+    def get_test_data(self):
+        return self.__data_test
+
+    def get_all_data(self):
+        return self.__all_data
+
+    def get_all_classes(self):
+        return self.__all_classes
