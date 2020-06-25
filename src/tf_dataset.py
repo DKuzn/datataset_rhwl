@@ -6,6 +6,7 @@ import random as rd
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 ALPHABET = 'А а Б б В в Г г Д д Е е Ё ё Ж ж З з И и Й й К к Л л М м \
             Н н О о П п Р р С с Т т У у Ф ф Х х Ц ц Ч ч Ш ш Щ щ ъ ы ь Э э Ю ю Я я'.split()
+BATCH_SIZE = 32
 
 path = '../cut_img_old/'
 
@@ -53,3 +54,48 @@ image_ds = path_ds.map(load_and_preprocess_image, num_parallel_calls=AUTOTUNE)
 label_ds = tf.data.Dataset.from_tensor_slices(tf.cast(all_img_labels, tf.int64))
 
 image_label_ds = tf.data.Dataset.zip((image_ds, label_ds))
+
+ds = image_label_ds.apply(
+  tf.data.experimental.shuffle_and_repeat(buffer_size=image_count))
+ds = ds.batch(BATCH_SIZE)
+ds = ds.prefetch(buffer_size=AUTOTUNE)
+print(ds)
+
+mobile_net = tf.keras.applications.MobileNetV2(input_shape=(128, 128, 3), include_top=False)
+mobile_net.trainable = False
+
+
+def change_range(image, label):
+    return 2 * image - 1, label
+
+
+keras_ds = ds.map(change_range)
+
+image_batch, label_batch = next(iter(keras_ds))
+
+feature_map_batch = mobile_net(image_batch)
+print(feature_map_batch.shape)
+
+model = tf.keras.Sequential([
+  mobile_net,
+  tf.keras.layers.GlobalAveragePooling2D(),
+  tf.keras.layers.Dense(len(ALPHABET), activation='softmax')])
+
+logit_batch = model(image_batch).numpy()
+
+print("min logit:", logit_batch.min())
+print("max logit:", logit_batch.max())
+print()
+
+print("Shape:", logit_batch.shape)
+
+model.compile(optimizer=tf.keras.optimizers.Adam(),
+              loss='sparse_categorical_crossentropy',
+              metrics=["accuracy"])
+
+model.summary()
+
+steps_per_epoch = tf.math.ceil(len(all_img_paths)/BATCH_SIZE).numpy()
+print(steps_per_epoch)
+
+model.fit(ds, epochs=20, steps_per_epoch=20)
